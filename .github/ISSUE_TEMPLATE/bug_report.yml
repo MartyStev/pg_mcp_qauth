@@ -1,0 +1,50 @@
+name: Bug report
+description: Something is not working as documented
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        Do **not** use issues for security vulnerabilities — see SECURITY.md.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      placeholder: Describe the observed behavior and the exact error/HTTP status you got.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Config (.env with secrets removed): ...
+        2. Command / MCP call: ...
+        3. Role/GRANT setup: ...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: e.g. 0.2.0, or git SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: as
+    attributes:
+      label: Authorization Server
+      options: [Keycloak, Authentik, Other, None/local JWKS]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant server logs
+      render: text
+      placeholder: Server output with secrets/tokens redacted.

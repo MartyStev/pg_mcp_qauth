@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # pyproject declares ranges; requirements.lock is pip-compile-generated.
+    # Keep both in sync — CI diffs the regenerated lock against the committed one.
+    versioning-strategy: lockfile-if-maintainable
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"

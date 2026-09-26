@@ -1,0 +1,93 @@
+{
+  "realm": "test",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "accessTokenLifespan": 300,
+  "clients": [
+    {
+      "clientId": "pg-mcp",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "redirectUris": ["*"],
+      "protocolMappers": [
+        {
+          "name": "groups",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "full.path": "false",
+            "claim.name": "groups",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "email-claim",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.attribute": "email",
+            "claim.name": "email",
+            "jsonType.label": "String",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "pg-mcp-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "pg-mcp",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "groups": [
+    { "name": "analysts" }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "email": "alice@eu",
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "EU",
+      "credentials": [{ "type": "password", "value": "alice-pass", "temporary": false }],
+      "groups": ["analysts"]
+    },
+    {
+      "username": "bob",
+      "enabled": true,
+      "email": "bob@us",
+      "emailVerified": true,
+      "firstName": "Bob",
+      "lastName": "US",
+      "credentials": [{ "type": "password", "value": "bob-pass", "temporary": false }],
+      "groups": ["analysts"]
+    },
+    {
+      "username": "carol",
+      "enabled": true,
+      "email": "carol@eu",
+      "emailVerified": true,
+      "firstName": "Carol",
+      "lastName": "NoGroups",
+      "credentials": [{ "type": "password", "value": "carol-pass", "temporary": false }],
+      "groups": []
+    }
+  ]
+}

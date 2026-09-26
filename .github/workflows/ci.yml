@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install -e ".[dev]"
+      - run: ruff check pg_mcp_qauth tests integration
+      - run: pytest -q
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit
+      - name: Audit pinned dependencies (advisory)
+        continue-on-error: true
+        run: pip-audit -r requirements.lock
+      - name: Drift check (lock must match pyproject)
+        run: |
+          pip install pip-tools
+          pip-compile pyproject.toml -o /tmp/requirements.lock --strip-extras --quiet
+          # Compare the set of pinned packages only. pip-compile against today's index
+          # resolves newer patch releases and embeds the output path in the header,
+          # so byte-diffing would make CI fail daily. Version freshness is covered by
+          # pip-audit; this check guards pyproject <-> lock closure consistency.
+          grep -E '^[A-Za-z0-9._-]+==' requirements.lock | cut -d'=' -f1 | tr 'A-Z' 'a-z' | sort -u > /tmp/old.lock
+          grep -E '^[A-Za-z0-9._-]+==' /tmp/requirements.lock | cut -d'=' -f1 | tr 'A-Z' 'a-z' | sort -u > /tmp/new.lock
+          diff -u /tmp/old.lock /tmp/new.lock

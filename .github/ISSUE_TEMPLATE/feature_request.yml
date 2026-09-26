@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest an idea for this project
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      placeholder: What is missing or awkward today, and in which setup?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: security
+    attributes:
+      label: Security considerations
+      placeholder: How does this interact with the access model (roles/RLS), the SQL guard, or token validation?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

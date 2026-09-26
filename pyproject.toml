@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pg-mcp-qauth"
+version = "0.2.0"
+description = "Postgres MCP server (OAuth 2.1 resource server) with role-based and row-level access control for Claude Code and other MCP clients."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "martystev" }]
+keywords = ["mcp", "model-context-protocol", "postgres", "postgresql", "oauth", "keycloak", "rls", "claude"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Database",
+    "Topic :: Security",
+]
+dependencies = [
+    "fastmcp>=4.0.0",
+    "asyncpg>=0.29.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "httpx>=0.27.0",
+    # Upper bound: sql_guard matches on AST class names (exp.Lock, exp.Command, ...);
+    # a sqlglot major bump can silently un-block a forbidden node type.
+    # Raise this bound only together with a pass of tests/test_sql_guard.py.
+    "sqlglot>=25.0.0,<31",
+    "PyJWT>=2.8.0",
+    "cryptography>=42.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.5.0",
+]
+audit = [
+    "pip-audit>=0.27",
+]
+
+[project.urls]
+Homepage = "https://github.com/MartyStev/pg_mcp_qauth"
+Repository = "https://github.com/MartyStev/pg_mcp_qauth"
+Issues = "https://github.com/MartyStev/pg_mcp_qauth/issues"
+Changelog = "https://github.com/MartyStev/pg_mcp_qauth/blob/main/CHANGELOG.md"
+
+[project.scripts]
+pg-mcp-qauth = "pg_mcp_qauth.server:main"
+pg-mcp-preview = "pg_mcp_qauth.preview:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pg_mcp_qauth"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# Integration drivers intentionally catch broad exceptions to report PASS/FAIL.
+"integration/*" = ["BLE001"]
