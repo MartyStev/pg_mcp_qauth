@@ -126,6 +126,30 @@ and `ALGORITHMS` must be exactly one asymmetric algorithm (HS*/`none` are reject
 the externally reachable URL. `/health` executes a real `SELECT 1` (503 when the DB is
 down).
 
+## Supported Authorization Servers
+
+The server validates exactly **one issuer** — any OAuth 2.1 / OIDC Authorization
+Server that can meet these requirements works:
+
+- JWKS endpoint with an **asymmetric** signing algorithm (RS*/ES*/PS*/EdDSA, pinned in
+  `ALGORITHMS`);
+- access tokens with a stable `aud` matching `REQUIRED_AUDIENCE`;
+- a **flat** claim carrying user groups/roles (via protocol mappers / claims policies)
+  for `ROLES_CLAIM`, and the identity claim used for RLS (`RLS_USER_CLAIM`).
+
+| Setup | Examples | Notes |
+|-------|----------|-------|
+| Self-hosted AS (recommended) | Keycloak, Authentik, Zitadel | full control over mappers; identity brokering gives social/corporate logins |
+| Cloud AS directly | Okta, Auth0, Microsoft Entra ID | Entra: configure `groups`/app-roles via claims policy; pin the app `aud` |
+| Logins via AS brokering | Google, GitHub, Microsoft accounts, AD FS / on-prem AD, any OIDC/SAML | users authenticate upstream; your AS remains the single issuer |
+| Not usable directly | bare "Sign in with Google" | Google ID tokens lack groups and custom `aud` — broker them through your AS |
+
+```
+users -> your AS (Keycloak/Authentik/…) --brokering--> Google / Microsoft / GitHub / AD / …
+                |
+                +-- issues JWT (single issuer) --> pg_mcp_qauth
+```
+
 ## Connecting MCP clients
 
 Because the server publishes RFC 9728 metadata (advertised in the `401`

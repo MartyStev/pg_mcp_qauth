@@ -109,6 +109,23 @@ docker run --env-file .env -p 8000:8000 pg_mcp_qauth
 - `PG_*` — реквизиты БД (`PG_USER` см. требования в runbook).
 - `MAX_ROWS`, `STATEMENT_TIMEOUT_MS`, `POOL_*`, `ALLOW_SYSTEM_SCHEMAS`.
 
+## Поддерживаемые Authorization Server'ы
+
+Сервер проверяет ровно **один issuer** — любой OAuth 2.1 / OIDC Authorization Server,
+который обеспечивает:
+
+- JWKS с **асимметричной** подписью (RS*/ES*/PS*/EdDSA, закреплён в `ALGORITHMS`);
+- стабильный `aud` в access-токене, равный `REQUIRED_AUDIENCE`;
+- **плоский** claim с группами/ролями (через protocol mapper'ы / claims policy) для
+  `ROLES_CLAIM` и claim личности для RLS (`RLS_USER_CLAIM`).
+
+| Схема | Примеры | Примечание |
+|-------|---------|------------|
+| Свой AS (рекомендуется) | Keycloak, Authentik, Zitadel | полный контроль мапперов; соц-логины — брокирингом |
+| Облачный AS напрямую | Okta, Auth0, Microsoft Entra ID | Entra: `groups`/app-roles через claims policy; зафиксируй `aud` |
+| Логины через брокиринг AS | Google, GitHub, Microsoft-аккаунты, AD FS / on-prem AD, любой OIDC/SAML | сервер всё равно видит один issuer |
+| Напрямую не годится | «Sign in with Google» сам по себе | у Google-токенов нет групп и кастомного `aud` — только через твой AS |
+
 ## Подключение MCP-клиентов
 
 Сервер публикует RFC 9728 metadata (URL рекламируется в `401`-challenge:
